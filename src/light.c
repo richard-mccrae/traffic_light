@@ -6,7 +6,7 @@
 #define MASK(x) (1UL << (x))
 
 #define LIGHT0_RED_SHIFT (11) /* PORTB */
-#define LIGHT0_YELLOW_SHIFT (2) /* PORTE */
+#define LIGHT0_YELLOW_SHIFT (4) /* PORTE */
 #define LIGHT0_GREEN_SHIFT (3) /* PORTE */
 
 #define LIGHT1_RED_SHIFT (8) /* PORTB */

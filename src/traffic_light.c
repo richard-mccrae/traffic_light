@@ -1,7 +1,9 @@
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "../inc/light.h"
 #include "../inc/adc.h"
+#include "../inc/traffic_light.h"
 
 /* Measured voltages when a light is on */
 #define RED_ON_VOLTAGE = 1.3
@@ -24,16 +26,18 @@ bool _verify_diode_and_resistor(light_n light, led_color color)
     voltage = adc_read_light_voltage(light, color);
 }
 
-void traffic_light_increment_and_verify(light_n light, led_color initial_color)
+void traffic_light0_increment_and_verify(led_color initial_color)
 {
-    static led_color color = NONE;
-	static int8_t change = 1, first_call = 1;
+    static led_color color = 0;
+	static int8_t change = 1;
+    static bool first_call = true;
 
     if (first_call) {
         color = initial_color;
+        first_call = false;
     }
 
-    light_set_color(light, color);
+    light_set_color(LIGHT_0, color);
 
 	if ( color == RED ) {
 		change = 1;
@@ -41,7 +45,31 @@ void traffic_light_increment_and_verify(light_n light, led_color initial_color)
 		change = -1;
 	}
 
-    _verify_diode_and_resistor(light, color);
+    // _verify_diode_and_resistor(light, color);
+
+    color += change;
+}
+
+void traffic_light1_increment_and_verify(led_color initial_color)
+{
+    static led_color color = 0;
+	static int8_t change = 1;
+    static bool first_call = true;
+
+    if (first_call) {
+        color = initial_color;
+        first_call = false;
+    }
+
+    light_set_color(LIGHT_1, color);
+
+	if ( color == RED ) {
+		change = 1;
+	} else if ( color == GREEN ) {
+		change = -1;
+	}
+
+    // _verify_diode_and_resistor(light, color);
 
     color += change;
 }

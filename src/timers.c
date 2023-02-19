@@ -1,7 +1,7 @@
 #include <MKL25Z4.h>
 
 #include "../inc/timers.h"
-#include "../inc/light.h"
+#include "../inc/traffic_light.h"
 
 #define SYSTEM_CLK 48 * 1000UL * 1000UL
 
@@ -23,8 +23,8 @@ void systick_init(void)
 
 void SysTick_Handler(void)
 {
-    light0_increment_color();
-    light1_increment_color();
+    traffic_light0_increment_and_verify(TRAFFIC_LIGHT_LIGHT_0_START_COLOR);
+    traffic_light1_increment_and_verify(TRAFFIC_LIGHT_LIGHT_1_START_COLOR);
 }
 
 /**

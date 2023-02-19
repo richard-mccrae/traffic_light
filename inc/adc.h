@@ -1,6 +1,8 @@
 #ifndef ADC_H
 #define ADC_H
 
+#include "../inc/light.h"
+
 /**
  * @ Initialise ADC module
  * 
