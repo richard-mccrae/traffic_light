@@ -1,67 +1,78 @@
 #include <MKL25Z4.h>
+
 #include "../inc/light.h"
 
 #define MASK(x) (1UL << (x))
 
-#define LIGHT0_RED_SHIFT (18) /* PORTB */
-#define LIGHT0_GREEN_SHIFT (19) /* PORTB */
-#define LIGHT0_BLUE_SHIFT (1) /* PORTD */
+#define LIGHT0_RED_SHIFT (11) /* PORTB */
+#define LIGHT0_YELLOW_SHIFT (2) /* PORTE */
+#define LIGHT0_GREEN_SHIFT (3) /* PORTE */
 
-#define LIGHT1_RED_SHIFT (5) /* PORTB */
-#define LIGHT1_GREEN_SHIFT (6) /* PORTB */
-#define LIGHT1_BLUE_SHIFT (7) /* PORTD */
+#define LIGHT1_RED_SHIFT (8) /* PORTB */
+#define LIGHT1_YELLOW_SHIFT (9) /* PORTB */
+#define LIGHT1_GREEN_SHIFT (10) /* PORTB */
+
+#define DELAY_500_MS	500 * 1000U
+#define DELAY_1_S	1 * 1000U * 1000U
+#define DELAY_2_S	2 * 1000U * 1000U
+#define DELAY_4_S	4 * 1000U * 1000U
 
 static led_color light0_state;
 static led_color light1_state;
 
+static void _delay(volatile unsigned int time_delay) {
+	while ( time_delay--) {
+	}
+}
+
 /* Light 0 */
 static void _light0_red_on(void) {
-	PTB->PCOR = MASK(LIGHT0_RED_SHIFT);
-}
-
-static void _light0_green_on(void) {
-	PTB->PCOR = MASK(LIGHT0_GREEN_SHIFT);
-}
-
-static void _light0_blue_on(void) {
-	PTD->PCOR = MASK(LIGHT0_BLUE_SHIFT);
-}
-
-static void _light0_red_off(void) {
 	PTB->PSOR = MASK(LIGHT0_RED_SHIFT);
 }
 
-static void _light0_green_off(void) {
-	PTB->PSOR = MASK(LIGHT0_GREEN_SHIFT);
+static void _light0_yellow_on(void) {
+	PTE->PSOR = MASK(LIGHT0_YELLOW_SHIFT);
 }
 
-static void _light0_blue_off(void) {
-	PTB->PSOR = MASK(LIGHT0_BLUE_SHIFT);
+static void _light0_green_on(void) {
+	PTE->PSOR = MASK(LIGHT0_GREEN_SHIFT);
+}
+
+static void _light0_red_off(void) {
+	PTB->PCOR = MASK(LIGHT0_RED_SHIFT);
+}
+
+static void _light0_yellow_off(void) {
+	PTE->PCOR = MASK(LIGHT0_YELLOW_SHIFT);
+}
+
+static void _light0_green_off(void) {
+	PTE->PCOR = MASK(LIGHT0_GREEN_SHIFT);
 }
 
 /* Light 1 */
 static void _light1_red_on(void) {
-	PTB->PCOR = MASK(LIGHT1_RED_SHIFT);
-}
-
-static void _light1_green_on(void) {
-	PTB->PCOR = MASK(LIGHT1_GREEN_SHIFT);
-}
-
-static void _light1_blue_on(void) {
-	PTD->PCOR = MASK(LIGHT1_BLUE_SHIFT);
-}
-
-static void _light1_red_off(void) {
 	PTB->PSOR = MASK(LIGHT1_RED_SHIFT);
 }
 
-static void _light1_green_off(void) {
+static void _light1_yellow_on(void) {
+	PTB->PSOR = MASK(LIGHT1_YELLOW_SHIFT);
+}
+
+static void _light1_green_on(void) {
 	PTB->PSOR = MASK(LIGHT1_GREEN_SHIFT);
 }
 
-static void _light1_blue_off(void) {
-	PTB->PSOR = MASK(LIGHT1_BLUE_SHIFT);
+static void _light1_red_off(void) {
+	PTB->PCOR = MASK(LIGHT1_RED_SHIFT);
+}
+
+static void _light1_yellow_off(void) {
+	PTB->PCOR = MASK(LIGHT1_YELLOW_SHIFT);
+}
+
+static void _light1_green_off(void) {
+	PTB->PCOR = MASK(LIGHT1_GREEN_SHIFT);
 }
 
 static int _light_set_color_state(light_n light_number, led_color color)
@@ -107,17 +118,17 @@ int light_set_color(light_n light_number, led_color color) {
 		case RED:
 			_light0_red_on();
 			_light0_green_off();
-			_light0_blue_off();
+			_light0_yellow_off();
 			break;
-		case BLUE:
-			_light0_blue_on();
+		case YELLOW:
+			_light0_yellow_on();
 			_light0_red_off();
 			_light0_green_off();
 			break;
 		case GREEN:
 			_light0_green_on();
 			_light0_red_off();
-			_light0_blue_off();
+			_light0_yellow_off();
 			break;
 		default:
 			/* Invalid color */
@@ -130,10 +141,10 @@ int light_set_color(light_n light_number, led_color color) {
 		case RED:
 			_light1_red_on();
 			_light1_green_off();
-			_light1_blue_off();
+			_light1_yellow_off();
 			break;
-		case BLUE:
-			_light1_blue_on();
+		case YELLOW:
+			_light1_yellow_on();
 			_light1_red_off();
 			_light1_green_off();
 			break;
@@ -141,7 +152,7 @@ int light_set_color(light_n light_number, led_color color) {
 			/* Add protection so that light can never turn green if 0 is red */
 			_light1_green_on();
 			_light1_red_off();
-			_light1_blue_off();
+			_light1_yellow_off();
 			break;
 		default:
 			/* Invalid color */
@@ -160,36 +171,35 @@ int light_set_color(light_n light_number, led_color color) {
 }
 
 void light_init(void) {
-	/* Enable clock on PORTB and PORTD */
-	SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK | SIM_SCGC5_PORTD_MASK;
+	/* Enable clock on PORTB and PORTE */
+	SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK | SIM_SCGC5_PORTE_MASK;
 	
-	/* Clear port PCR */
+	/* Clear PCR MUXes */
 	PORTB->PCR[LIGHT0_RED_SHIFT] &= ~PORT_PCR_MUX_MASK;
-	PORTB->PCR[LIGHT0_GREEN_SHIFT] &= ~PORT_PCR_MUX_MASK;
-	PORTD->PCR[LIGHT0_BLUE_SHIFT] &= ~PORT_PCR_MUX_MASK;
+	PORTE->PCR[LIGHT0_YELLOW_SHIFT] &= ~PORT_PCR_MUX_MASK;
+	PORTE->PCR[LIGHT0_GREEN_SHIFT] &= ~PORT_PCR_MUX_MASK;
 
-	// PORTB->PCR[LIGHT1_RED_SHIFT] &= ~PORT_PCR_MUX_MASK;
-	// PORTB->PCR[LIGHT1_GREEN_SHIFT] &= ~PORT_PCR_MUX_MASK;
-	// PORTD->PCR[LIGHT1_BLUE_SHIFT] &= ~PORT_PCR_MUX_MASK;
+	PORTB->PCR[LIGHT1_RED_SHIFT] &= ~PORT_PCR_MUX_MASK;
+	PORTB->PCR[LIGHT1_YELLOW_SHIFT] &= ~PORT_PCR_MUX_MASK;
+	PORTB->PCR[LIGHT1_GREEN_SHIFT] &= ~PORT_PCR_MUX_MASK;
 
 	/* Configure pins to use GPIO peripheral module */
 	PORTB->PCR[LIGHT0_RED_SHIFT] |= PORT_PCR_MUX(1);
-	PORTB->PCR[LIGHT0_GREEN_SHIFT] |= PORT_PCR_MUX(1);
-	PORTD->PCR[LIGHT0_BLUE_SHIFT] |= PORT_PCR_MUX(1);
+	PORTE->PCR[LIGHT0_YELLOW_SHIFT] |= PORT_PCR_MUX(1);
+	PORTE->PCR[LIGHT0_GREEN_SHIFT] |= PORT_PCR_MUX(1);
 
-	// PORTB->PCR[LIGHT1_RED_SHIFT] |= PORT_PCR_MUX(1);
-	// PORTB->PCR[LIGHT1_GREEN_SHIFT] |= PORT_PCR_MUX(1);
-	// PORTD->PCR[LIGHT1_BLUE_SHIFT] |= PORT_PCR_MUX(1);
+	PORTB->PCR[LIGHT1_RED_SHIFT] |= PORT_PCR_MUX(1);
+	PORTB->PCR[LIGHT1_YELLOW_SHIFT] |= PORT_PCR_MUX(1);
+	PORTB->PCR[LIGHT1_GREEN_SHIFT] |= PORT_PCR_MUX(1);
 	
-	/* Set LED pins to be outputs */
-	PTB->PDDR |= MASK(LIGHT0_RED_SHIFT) | MASK(LIGHT0_GREEN_SHIFT);
-	PTD->PDDR |= MASK(LIGHT0_BLUE_SHIFT);
+	/* Set pins to be outputs */
+	PTB->PDDR |= MASK(LIGHT0_RED_SHIFT);
+	PTE->PDDR |= MASK(LIGHT0_YELLOW_SHIFT) | MASK(LIGHT0_GREEN_SHIFT);
 
-	// PTB->PDDR |= MASK(LIGHT1_RED_SHIFT) | MASK(LIGHT1_GREEN_SHIFT);
-	// PTD->PDDR |= MASK(LIGHT1_BLUE_SHIFT);
+	PTB->PDDR |= MASK(LIGHT1_RED_SHIFT) | MASK(LIGHT1_YELLOW_SHIFT) | MASK(LIGHT1_GREEN_SHIFT);
 
 	/* Set initial light colors */
-	light_set_color(LIGHT_0, GREEN);
+	// light_set_color(LIGHT_0, GREEN);
 	// light_set_color(LIGHT_1, RED);
 }
 
@@ -206,5 +216,44 @@ void light_increment_color_state(light_n light_number)
 		light_set_color(light_number, color++);
 	} else {
 		light_set_color(light_number, RED);
+	}
+}
+
+void light_test_low_level(void)
+{
+	_light0_red_off();
+	_light0_yellow_off();
+	_light0_green_off();
+	
+	_light1_red_off();
+	_light1_yellow_off();
+	_light1_green_off();
+
+	_delay(DELAY_2_S);
+
+	while(1) {
+		_light0_red_off();
+		_light0_yellow_off();
+		_light0_green_off();
+		
+		_light1_red_off();
+		_light1_yellow_off();
+		_light1_green_off();
+
+		_delay(DELAY_2_S);
+
+		_light0_red_on();
+		_delay(DELAY_1_S);
+		_light0_yellow_on();
+		_delay(DELAY_1_S);
+		_light0_green_on();
+		_delay(DELAY_1_S);
+
+		_light1_red_on();
+		_delay(DELAY_1_S);
+		_light1_yellow_on();
+		_delay(DELAY_1_S);
+		_light1_green_on();
+		_delay(DELAY_2_S);
 	}
 }

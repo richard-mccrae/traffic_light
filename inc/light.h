@@ -5,7 +5,7 @@
 
 typedef enum { 
 	RED = 0, 
-	BLUE, 
+	YELLOW, 
 	GREEN
 } led_color;
 
@@ -32,5 +32,12 @@ int light_set_color(light_n light_number, led_color color);
  * @param[in] light_number The traffic light number to change
 */
 void light_increment_color_state(light_n light_number);
+
+/**
+ * @brief Cycle through all lights to test that they work as expected
+ * 
+ * Test for lowest level functions
+*/
+void light_test_low_level(void);
 
 #endif /* LIGHT_H */

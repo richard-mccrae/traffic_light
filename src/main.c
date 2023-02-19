@@ -8,7 +8,7 @@ int main(void) {
 	SystemCoreClockUpdate();
 
 	light_init();
-	systick_init();
+	// systick_init();
 
-	while(1);
+	light_test_low_level();
 }
