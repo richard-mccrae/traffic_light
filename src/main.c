@@ -8,7 +8,7 @@ int main(void) {
 	SystemCoreClockUpdate();
 
 	light_init();
-	// systick_init();
+	systick_init();
 
-	test_light1_increment_color();
+	while(1);
 }

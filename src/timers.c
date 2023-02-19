@@ -23,7 +23,8 @@ void systick_init(void)
 
 void SysTick_Handler(void)
 {
-    // Increment colors
+    light0_increment_color();
+    light1_increment_color();
 }
 
 /**

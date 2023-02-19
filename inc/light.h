@@ -63,5 +63,6 @@ void test_light_set_color(void);
 
 void test_light0_increment_color(void);
 void test_light1_increment_color(void);
+void test_both_lights_increment_color(void);
 
 #endif /* LIGHT_H */

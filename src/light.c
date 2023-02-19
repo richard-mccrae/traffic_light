@@ -17,6 +17,38 @@
 #define DELAY_2_S	2 * 1000U * 1000U
 #define DELAY_4_S	4 * 1000U * 1000U
 
+/**
+ * Local function declarations
+*/
+static void _delay(volatile unsigned int time_delay);
+
+static void _light0_red_on(void);
+static void _light0_yellow_on(void);
+static void _light0_green_on(void);
+static void _light0_red_off(void);
+static void _light0_yellow_off(void);
+static void _light0_green_off(void);
+static uint8_t _light0_red_get(void);
+static uint8_t _light0_yellow_get(void);
+static uint8_t _light0_green_get(void);
+
+static void _light1_red_on(void);
+static void _light1_yellow_on(void);
+static void _light1_green_on(void);
+static void _light1_red_off(void);
+static void _light1_yellow_off(void);
+static void _light1_green_off(void);
+static uint8_t _light1_red_get(void);
+static uint8_t _light1_yellow_get(void);
+static uint8_t _light1_green_get(void);
+
+static void _light0_set_color(led_color color);
+static void _light1_set_color(led_color color);
+
+/**
+ * Local function definitions
+*/
+
 static void _delay(volatile unsigned int time_delay) {
 	while ( time_delay--) {
 	}
@@ -37,7 +69,16 @@ static void _light0_yellow_on(void)
 
 static void _light0_green_on(void)
 {
-	PTE->PSOR = MASK(LIGHT0_GREEN_SHIFT);
+	uint8_t light1_green_pin_state;
+
+	/* Add a safety check so that light 1 can never be set to GREEN while light 0 is also GREEN */
+	light1_green_pin_state = _light1_green_get();
+
+	if ( !light1_green_pin_state ) {
+		PTE->PSOR = MASK(LIGHT0_GREEN_SHIFT);
+	}
+
+	/** TODO: Add error handling logic, function should return failure if light 1 is GREEN */
 }
 
 static void _light0_red_off(void)
@@ -85,7 +126,16 @@ static void _light1_yellow_on(void)
 
 static void _light1_green_on(void)
 {
-	PTB->PSOR = MASK(LIGHT1_GREEN_SHIFT);
+	uint8_t light0_green_pin_state;
+
+	/* Add a safety check so that light 1 can never be set to GREEN while light 0 is also GREEN */
+	light0_green_pin_state = _light0_green_get();
+
+	if (!light0_green_pin_state) {
+		PTB->PSOR = MASK(LIGHT1_GREEN_SHIFT);
+	}
+
+	/** TODO: Add error handling logic, function should return failure if light 0 is GREEN */
 }
 
 static void _light1_red_off(void)
@@ -639,6 +689,15 @@ void test_light1_increment_color(void)
 {
 	while(1) {
 		_delay(DELAY_4_S);
+		light1_increment_color();
+	}
+}
+
+void test_both_lights_increment_color(void)
+{
+	while(1) {
+		_delay(DELAY_4_S);
+		light0_increment_color();
 		light1_increment_color();
 	}
 }
