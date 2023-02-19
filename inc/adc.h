@@ -4,7 +4,7 @@
 #include "../inc/light.h"
 
 /**
- * @ Initialise ADC module
+ * @brief Initialise ADC module
  * 
  * Enable long sample time, 16-bit single-ended conversion, and use 24 MHz bus clock.
  * In addition, enable clock to input pins and configure them as analog inputs

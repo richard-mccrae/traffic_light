@@ -2,7 +2,7 @@
 
 #include "../inc/adc.h"
 #include "../inc/light.h"
-#include "../inc/std_funcs.h"
+#include "../inc/common.h"
 
 #define ADC_IN_LIGHT0_RED (0) /* PORTB */
 #define ADC_IN_LIGHT0_YELLOW (1) /* PORTB */
@@ -19,6 +19,55 @@
 #define ADC_REFSEL_LIGHT1_RED (13)
 #define ADC_REFSEL_LIGHT1_YELLOW (11)
 #define ADC_REFSEL_LIGHT1_GREEN (15)
+
+/**
+ * Static function declarations
+*/
+
+static unsigned short _get_conversion(unsigned char ch);
+static float _convert_output_to_voltage(unsigned short adc_output);
+
+/**
+ * Static function definitions
+*/
+
+/*unsigned short	adc_read(unsigned char ch)
+ *
+ *
+ * 	Reads the specified adc channel and returns the 16 bits read value
+ * 	
+ * 	ch -> Number of the channel in which the reading will be performed
+ * 	Returns the -> Result of the conversion performed by the adc
+ *
+ * (!) This function stolen with good conscious from Manuel Rodríguez @ NXP Community
+ * https://community.nxp.com/t5/Kinetis-Microcontrollers/PIT-ADC-DMA-Example-for-FRDM-KL25z-FRDM-K64F-TWR-K60D100-and-TWR/ta-p/1107325 
+ */
+static unsigned short _get_conversion(unsigned char ch)
+{
+	ADC0_SC1A = (ch & ADC_SC1_ADCH_MASK) | 
+				(ADC0_SC1A & (ADC_SC1_AIEN_MASK | ADC_SC1_DIFF_MASK));     // Write to SC1A to start conversion
+	while(ADC0_SC2 & ADC_SC2_ADACT_MASK); 	 // Conversion in progress
+	while(!(ADC0_SC1A & ADC_SC1_COCO_MASK)); // Run until the conversion is complete
+
+	return ((unsigned short)ADC0_RA);
+}
+
+/**
+ * @brief Convert ADC output value to voltage based on 3v3 reference
+ * @params[in] ADC output value
+*/
+static float _convert_output_to_voltage(unsigned short adc_output)
+{
+	unsigned short resolution = 65535;
+	float reference_voltage = (float)3.3;
+
+
+	return (((float)adc_output/resolution) * reference_voltage);
+}
+
+/**
+ * Interface
+*/
 
 void adc_init(void)
 {
@@ -56,36 +105,6 @@ void adc_init(void)
 	 * Software trigger select
 	 */
 	ADC0->SC2 = ADC_SC2_REFSEL(0);
-}
-
-/*unsigned short	adc_read(unsigned char ch)
- *
- *
- * 	Reads the specified adc channel and returns the 16 bits read value
- * 	
- * 	ch -> Number of the channel in which the reading will be performed
- * 	Returns the -> Result of the conversion performed by the adc
- *
- * (!) This function stolen with good conscious from Manuel Rodríguez @ NXP Community
- * https://community.nxp.com/t5/Kinetis-Microcontrollers/PIT-ADC-DMA-Example-for-FRDM-KL25z-FRDM-K64F-TWR-K60D100-and-TWR/ta-p/1107325 
- */
-static unsigned short _get_conversion(unsigned char ch)
-{
-	ADC0_SC1A = (ch & ADC_SC1_ADCH_MASK) | 
-				(ADC0_SC1A & (ADC_SC1_AIEN_MASK | ADC_SC1_DIFF_MASK));     // Write to SC1A to start conversion
-	while(ADC0_SC2 & ADC_SC2_ADACT_MASK); 	 // Conversion in progress
-	while(!(ADC0_SC1A & ADC_SC1_COCO_MASK)); // Run until the conversion is complete
-
-	return ((unsigned short)ADC0_RA);
-}
-
-static float _convert_output_to_voltage(unsigned short adc_output)
-{
-	unsigned short resolution = 65535;
-	float reference_voltage = 3.3;
-
-
-	return (((float)adc_output/resolution) * reference_voltage);
 }
 
 float adc_read(unsigned char channel)
@@ -133,7 +152,7 @@ float adc_read_light1_green(void)
 
 float adc_read_light_voltage(light_n light, led_color color)
 {
-	float voltage;
+	float voltage = (float)-1;
 
 	switch (light)
     {
@@ -149,12 +168,12 @@ float adc_read_light_voltage(light_n light, led_color color)
 		case GREEN:
 			voltage = adc_read_light0_green();
 			break;
+		case NONE:
+			voltage = (float)-1;
+			break;
 		}
         break;
-    
     case LIGHT_1:
-        switch (color)
-		{
         switch (color)
 		{
 		case RED:
@@ -166,7 +185,9 @@ float adc_read_light_voltage(light_n light, led_color color)
 		case GREEN:
 			voltage = adc_read_light1_green();
 			break;
-		}
+		case NONE:
+			voltage = (float)-1;
+			break;
 		}
         break;
     }
@@ -183,31 +204,31 @@ void test_adc_read_light0_red(void)
 	/* Measure voltage with pin off, should be 0 */
 	voltage = adc_read_light0_red();
 
-	if (voltage < 0.2) {
+	if (voltage < (float)1) {
 		light_set_color(LIGHT_1, GREEN);
-	} else if ( voltage >= 1.0 && voltage < 1.55) {
+	} else if ( voltage >= (float)1.0 && voltage < (float)1.55) {
 		light_set_color(LIGHT_1, RED);
 	} else {
 		light_set_color(LIGHT_1, YELLOW);
 	}
 
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 	light_set_color(LIGHT_1, NONE);
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 
 	/* Turn on LIGHT_0 RED, test ADC voltage again, should be aroudn 1.3 V */
 	light_set_color(LIGHT_0, RED);
 	voltage = adc_read_light0_red();
 	
-	if (voltage < 1) {
+	if (voltage < (float)1) {
 		light_set_color(LIGHT_1, RED);
-	} else if ( voltage > 1 && voltage < 1.55) {
+	} else if ( voltage >= (float)1 && voltage < (float)1.55) {
 		light_set_color(LIGHT_1, GREEN);
 	} else {
 		light_set_color(LIGHT_1, YELLOW);
 	}
 
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 	light_set_color(LIGHT_0, NONE);
 	light_set_color(LIGHT_1, NONE);
 }
@@ -219,31 +240,31 @@ void test_adc_read_light0_yellow(void)
 	/* Measure voltage with pin off, should be 0 */
 	voltage = adc_read_light0_yellow();
 
-	if (voltage < 0.2) {
+	if (voltage < (float)1) {
 		light_set_color(LIGHT_1, GREEN);
-	} else if ( voltage >= 1.0 && voltage < 1.55) {
+	} else if ( voltage >= (float)1 && voltage < (float)1.55) {
 		light_set_color(LIGHT_1, RED);
 	} else {
 		light_set_color(LIGHT_1, YELLOW);
 	}
 
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 	light_set_color(LIGHT_1, NONE);
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 
 	/* Turn on LIGHT_0 YELLOW, test ADC voltage again, should be aroudn 1.3 V */
 	light_set_color(LIGHT_0, YELLOW);
 	voltage = adc_read_light0_yellow();
 
-	if (voltage < 1) {
+	if (voltage < (float)1) {
 		light_set_color(LIGHT_1, RED);
-	} else if ( voltage > 1 && voltage < 1.55) {
+	} else if ( voltage >= (float)1 && voltage < (float)1.55) {
 		light_set_color(LIGHT_1, GREEN);
 	} else {
 		light_set_color(LIGHT_1, YELLOW);
 	}
 
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 	light_set_color(LIGHT_0, NONE);
 	light_set_color(LIGHT_1, NONE);
 }
@@ -255,32 +276,32 @@ void test_adc_read_light0_green(void)
 	/* Measure voltage with pin off, should be 0 */
 	voltage = adc_read_light0_green();
 
-	if (voltage < 0.2) {
+	if (voltage < (float)1) {
 		light_set_color(LIGHT_1, GREEN);
-	} else if ( voltage >= 1.0 && voltage < 1.55) {
+	} else if ( voltage >= (float)1.0 && voltage < (float)1.55) {
 		light_set_color(LIGHT_1, RED);
 	} else {
 		light_set_color(LIGHT_1, YELLOW);
 	}
 
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 	light_set_color(LIGHT_1, NONE);
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 
 	/* Turn on LIGHT_0 GREEN, test ADC voltage again, should be aroudn 1.3 V */
 	light_set_color(LIGHT_0, GREEN);
 	voltage = adc_read_light0_green();
 
-	if (voltage < 1) {
+	if (voltage < (float)1) {
 		light_set_color(LIGHT_1, RED);
-	} else if ( voltage > 1 && voltage < 1.55) {
+	} else if ( voltage >= (float)1 && voltage < (float)1.55) {
 		/* Oi! There is a low-level protection to prevent two green lights */
 		light_set_color(LIGHT_1, GREEN);
 	} else {
 		light_set_color(LIGHT_1, YELLOW);
 	}
 
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 	light_set_color(LIGHT_0, NONE);
 	light_set_color(LIGHT_1, NONE);
 }
@@ -292,31 +313,31 @@ void test_adc_read_light1_red(void)
 	/* Measure voltage with pin off, should be 1 */
 	voltage = adc_read_light1_red();
 
-	if (voltage < 0.2) {
+	if (voltage < (float)1) {
 		light_set_color(LIGHT_0, GREEN);
-	} else if ( voltage >= 1.0 && voltage < 1.55) {
+	} else if ( voltage >= (float)1.0 && voltage < (float)1.55) {
 		light_set_color(LIGHT_0, RED);
 	} else {
 		light_set_color(LIGHT_0, YELLOW);
 	}
 
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 	light_set_color(LIGHT_0, NONE);
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 
 	/* Turn on LIGHT_0 RED, test ADC voltage again, should be aroudn 1.3 V */
 	light_set_color(LIGHT_1, RED);
 	voltage = adc_read_light1_red();
 
-	if (voltage < 1) {
+	if (voltage < (float)1) {
 		light_set_color(LIGHT_0, RED);
-	} else if ( voltage > 1 && voltage < 1.55) {
+	} else if ( voltage >= (float)1 && voltage < (float)1.55) {
 		light_set_color(LIGHT_0, GREEN);
 	} else {
 		light_set_color(LIGHT_0, YELLOW);
 	}
 
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 	light_set_color(LIGHT_0, NONE);
 	light_set_color(LIGHT_1, NONE);
 }
@@ -328,31 +349,31 @@ void test_adc_read_light1_yellow(void)
 	/* Measure voltage with pin off, should be 0 */
 	voltage = adc_read_light1_yellow();
 
-	if (voltage < 0.2) {
+	if (voltage < (float)1) {
 		light_set_color(LIGHT_0, GREEN);
-	} else if ( voltage >= 1.0 && voltage < 1.55) {
+	} else if ( voltage >= (float)1 && voltage < (float)1.55) {
 		light_set_color(LIGHT_0, RED);
 	} else {
 		light_set_color(LIGHT_0, YELLOW);
 	}
 
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 	light_set_color(LIGHT_0, NONE);
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 
 	/* Turn on LIGHT_0 YELLOW, test ADC voltage again, should be aroudn 1.3 V */
 	light_set_color(LIGHT_1, YELLOW);
 	voltage = adc_read_light1_yellow();
 
-	if (voltage < 1) {
+	if (voltage < (float)1) {
 		light_set_color(LIGHT_0, RED);
-	} else if ( voltage > 1 && voltage < 1.55) {
+	} else if ( voltage >= (float)1 && voltage < (float)1.55) {
 		light_set_color(LIGHT_0, GREEN);
 	} else {
 		light_set_color(LIGHT_0, YELLOW);
 	}
 
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 	light_set_color(LIGHT_0, NONE);
 	light_set_color(LIGHT_1, NONE);
 }
@@ -364,32 +385,32 @@ void test_adc_read_light1_green(void)
 	/* Measure voltage with pin off, should be 0 */
 	voltage = adc_read_light1_green();
 
-	if (voltage < 0.2) {
+	if (voltage < (float)1) {
 		light_set_color(LIGHT_0, GREEN);
-	} else if ( voltage >= 1.0 && voltage < 1.55) {
+	} else if ( voltage >= (float)1 && voltage < (float)1.55) {
 		light_set_color(LIGHT_0, RED);
 	} else {
 		light_set_color(LIGHT_0, YELLOW);
 	}
 
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 	light_set_color(LIGHT_0, NONE);
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 
 	/* Turn on LIGHT_0 GREEN, test ADC voltage again, should be aroudn 1.3 V */
 	light_set_color(LIGHT_1, GREEN);
 	voltage = adc_read_light1_green();
 
-	if (voltage < 1) {
+	if (voltage < (float)1) {
 		light_set_color(LIGHT_0, RED);
-	} else if ( voltage > 1 && voltage < 1.55) {
+	} else if ( voltage >= (float)1 && voltage < (float)1.55) {
 		/* Oi! There is a low-level protection to prevent two green lights */
 		light_set_color(LIGHT_0, GREEN);
 	} else {
 		light_set_color(LIGHT_0, YELLOW);
 	}
 
-	delay(DELAY_4_S);
+	delay(DELAY_LONG);
 	light_set_color(LIGHT_0, NONE);
 	light_set_color(LIGHT_1, NONE);
 }
