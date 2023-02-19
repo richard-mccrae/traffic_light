@@ -1,6 +1,7 @@
 #include <MKL25Z4.h>
 
 #include "../inc/light.h"
+#include "../inc/std_funcs.h"
 
 #define MASK(x) (1UL << (x))
 
@@ -12,15 +13,9 @@
 #define LIGHT1_YELLOW_SHIFT (9) /* PORTB */
 #define LIGHT1_GREEN_SHIFT (10) /* PORTB */
 
-#define DELAY_500_MS	500 * 1000U
-#define DELAY_1_S	1 * 1000U * 1000U
-#define DELAY_2_S	2 * 1000U * 1000U
-#define DELAY_4_S	4 * 1000U * 1000U
-
 /**
  * Local function declarations
 */
-static void _delay(volatile unsigned int time_delay);
 
 static void _light0_red_on(void);
 static void _light0_yellow_on(void);
@@ -48,11 +43,6 @@ static void _light1_set_color(led_color color);
 /**
  * Local function definitions
 */
-
-static void _delay(volatile unsigned int time_delay) {
-	while ( time_delay--) {
-	}
-}
 
 /*
  * Light 0 low-level functions
@@ -320,8 +310,7 @@ void light1_increment_color(void)
 }
 
 
-/*****                                 TESTS                                           *****/
-
+/* *************************************  TESTS  ************************************* */
 /** 
  * low level set and clear functions
  */
@@ -335,7 +324,7 @@ void test_light_low_level(void)
 	_light1_yellow_off();
 	_light1_green_off();
 
-	_delay(DELAY_2_S);
+	delay(DELAY_2_S);
 
 	while(1) {
 		_light0_red_off();
@@ -346,21 +335,21 @@ void test_light_low_level(void)
 		_light1_yellow_off();
 		_light1_green_off();
 
-		_delay(DELAY_2_S);
+		delay(DELAY_2_S);
 
 		_light0_red_on();
-		_delay(DELAY_1_S);
+		delay(DELAY_1_S);
 		_light0_yellow_on();
-		_delay(DELAY_1_S);
+		delay(DELAY_1_S);
 		_light0_green_on();
-		_delay(DELAY_1_S);
+		delay(DELAY_1_S);
 
 		_light1_red_on();
-		_delay(DELAY_1_S);
+		delay(DELAY_1_S);
 		_light1_yellow_on();
-		_delay(DELAY_1_S);
+		delay(DELAY_1_S);
 		_light1_green_on();
-		_delay(DELAY_2_S);
+		delay(DELAY_2_S);
 	}
 }
 
@@ -383,7 +372,7 @@ void test_light0_red_get(void)
 		_light1_yellow_on();
 	}
 
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 
 	/* Reset lightd and var */
 	_light1_red_off();
@@ -391,11 +380,11 @@ void test_light0_red_get(void)
 	_light1_green_off();
 	red_pin_state = 8;
 
-	_delay(DELAY_2_S);
+	delay(DELAY_2_S);
 	
 	/* Set light, expect PDOR to be 1 */
 	_light0_red_on();
-	_delay(DELAY_1_S);
+	delay(DELAY_1_S);
 	red_pin_state = _light0_red_get();
 
 	if (red_pin_state == 1) {
@@ -406,12 +395,12 @@ void test_light0_red_get(void)
 		_light1_yellow_on();
 	}
 
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 	_light0_red_off();
 	_light1_red_off();
 	_light1_yellow_off();
 	_light1_green_off();
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 }
 
 void test_light0_yellow_get(void)
@@ -430,7 +419,7 @@ void test_light0_yellow_get(void)
 		_light1_yellow_on();
 	}
 
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 
 	/* Reset lightd and var */
 	_light1_red_off();
@@ -438,11 +427,11 @@ void test_light0_yellow_get(void)
 	_light1_green_off();
 	yellow_pin_state = 8;
 
-	_delay(DELAY_2_S);
+	delay(DELAY_2_S);
 	
 	/* Set light, expect PDOR to be 1 */
 	_light0_yellow_on();
-	_delay(DELAY_1_S);
+	delay(DELAY_1_S);
 	yellow_pin_state = _light0_yellow_get();
 
 	if (yellow_pin_state == 1) {
@@ -453,12 +442,12 @@ void test_light0_yellow_get(void)
 		_light1_yellow_on();
 	}
 
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 	_light0_yellow_off();
 	_light1_red_off();
 	_light1_yellow_off();
 	_light1_green_off();
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 }
 
 void test_light0_green_get(void)
@@ -477,7 +466,7 @@ void test_light0_green_get(void)
 		_light1_yellow_on();
 	}
 
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 
 	/* Reset lightd and var */
 	_light1_red_off();
@@ -485,11 +474,11 @@ void test_light0_green_get(void)
 	_light1_green_off();
 	green_pin_state = 8;
 
-	_delay(DELAY_2_S);
+	delay(DELAY_2_S);
 	
 	/* Set light, expect PDOR to be 1 */
 	_light0_green_on();
-	_delay(DELAY_1_S);
+	delay(DELAY_1_S);
 	green_pin_state = _light0_green_get();
 
 	if (green_pin_state == 1) {
@@ -500,12 +489,12 @@ void test_light0_green_get(void)
 		_light1_yellow_on();
 	}
 
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 	_light0_green_off();
 	_light1_red_off();
 	_light1_yellow_off();
 	_light1_green_off();
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 }
 
 /**
@@ -527,7 +516,7 @@ void test_light1_red_get(void)
 		_light0_yellow_on();
 	}
 
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 
 	/* Reset lightd and var */
 	_light0_red_off();
@@ -535,11 +524,11 @@ void test_light1_red_get(void)
 	_light0_green_off();
 	red_pin_state = 8;
 
-	_delay(DELAY_2_S);
+	delay(DELAY_2_S);
 	
 	/* Set light, expect PDOR to be 1 */
 	_light1_red_on();
-	_delay(DELAY_1_S);
+	delay(DELAY_1_S);
 	red_pin_state = _light1_red_get();
 
 	if (red_pin_state == 1) {
@@ -550,12 +539,12 @@ void test_light1_red_get(void)
 		_light0_yellow_on();
 	}
 
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 	_light1_red_off();
 	_light0_red_off();
 	_light0_yellow_off();
 	_light0_green_off();
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 }
 
 void test_light1_yellow_get(void)
@@ -574,7 +563,7 @@ void test_light1_yellow_get(void)
 		_light0_yellow_on();
 	}
 
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 
 	/* Reset lightd and var */
 	_light0_red_off();
@@ -582,11 +571,11 @@ void test_light1_yellow_get(void)
 	_light0_green_off();
 	yellow_pin_state = 8;
 
-	_delay(DELAY_2_S);
+	delay(DELAY_2_S);
 	
 	/* Set light, expect PDOR to be 1 */
 	_light1_yellow_on();
-	_delay(DELAY_1_S);
+	delay(DELAY_1_S);
 	yellow_pin_state = _light1_yellow_get();
 
 	if (yellow_pin_state == 1) {
@@ -597,12 +586,12 @@ void test_light1_yellow_get(void)
 		_light0_yellow_on();
 	}
 
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 	_light1_yellow_off();
 	_light0_red_off();
 	_light0_yellow_off();
 	_light0_green_off();
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 }
 
 void test_light1_green_get(void)
@@ -621,7 +610,7 @@ void test_light1_green_get(void)
 		_light0_yellow_on();
 	}
 
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 
 	/* Reset lightd and var */
 	_light0_red_off();
@@ -629,11 +618,11 @@ void test_light1_green_get(void)
 	_light0_green_off();
 	green_pin_state = 8;
 
-	_delay(DELAY_2_S);
+	delay(DELAY_2_S);
 	
 	/* Set light, expect PDOR to be 1 */
 	_light1_green_on();
-	_delay(DELAY_1_S);
+	delay(DELAY_1_S);
 	green_pin_state = _light1_green_get();
 
 	if (green_pin_state == 1) {
@@ -644,12 +633,12 @@ void test_light1_green_get(void)
 		_light0_yellow_on();
 	}
 
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 	_light1_green_off();
 	_light0_red_off();
 	_light0_yellow_off();
 	_light0_green_off();
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 }
 
 /**
@@ -657,30 +646,30 @@ void test_light1_green_get(void)
 */
 void test_light_set_color(void)
 {
-	_delay(DELAY_2_S);
+	delay(DELAY_2_S);
 	light_set_color(LIGHT_0, RED);
-	_delay(DELAY_2_S);
+	delay(DELAY_2_S);
 	light_set_color(LIGHT_0, YELLOW);
-	_delay(DELAY_2_S);
+	delay(DELAY_2_S);
 	light_set_color(LIGHT_0, GREEN);
-	_delay(DELAY_2_S);
+	delay(DELAY_2_S);
 	light_set_color(LIGHT_0, NONE);
 
-	_delay(DELAY_4_S);
+	delay(DELAY_4_S);
 
 	light_set_color(LIGHT_1, RED);
-	_delay(DELAY_2_S);
+	delay(DELAY_2_S);
 	light_set_color(LIGHT_1, YELLOW);
-	_delay(DELAY_2_S);
+	delay(DELAY_2_S);
 	light_set_color(LIGHT_1, GREEN);
-	_delay(DELAY_2_S);
+	delay(DELAY_2_S);
 	light_set_color(LIGHT_1, NONE);
 }
 
 void test_light0_increment_color(void)
 {
 	while(1) {
-		_delay(DELAY_4_S);
+		delay(DELAY_4_S);
 		light0_increment_color();
 	}
 }
@@ -688,7 +677,7 @@ void test_light0_increment_color(void)
 void test_light1_increment_color(void)
 {
 	while(1) {
-		_delay(DELAY_4_S);
+		delay(DELAY_4_S);
 		light1_increment_color();
 	}
 }
@@ -696,7 +685,7 @@ void test_light1_increment_color(void)
 void test_both_lights_increment_color(void)
 {
 	while(1) {
-		_delay(DELAY_4_S);
+		delay(DELAY_4_S);
 		light0_increment_color();
 		light1_increment_color();
 	}

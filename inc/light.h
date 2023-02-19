@@ -3,6 +3,19 @@
 
 #include <stdint.h>
 
+/* Measured voltages when a light is on */
+#define RED_ON_VOLTAGE = 1.3
+#define YELLOW_ON_VOLTAGE = 1.2
+#define GREEN_ON_VOLTAGE = 1.2
+#define ON_VOLTAGE_WINDOW = 0.2
+
+/* Measured voltages between resistor and diode when their is an open circuit from resistor to GND 
+ * A margin of safety is subtracted
+ */
+#define RED_RES_OPEN_V = 1.89 - 0.2
+#define YELLOQ_RES_OPEN_V = 1.79 - 0.2
+#define GREEN_RES_OPEN_V = 1.76 - 0.2
+
 typedef enum { 
 	NONE = 0,
 	RED, 
