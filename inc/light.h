@@ -1,21 +1,6 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include <stdint.h>
-
-/* Measured voltages when a light is on */
-#define RED_ON_VOLTAGE = 1.3
-#define YELLOW_ON_VOLTAGE = 1.2
-#define GREEN_ON_VOLTAGE = 1.2
-#define ON_VOLTAGE_WINDOW = 0.2
-
-/* Measured voltages between resistor and diode when their is an open circuit from resistor to GND 
- * A margin of safety is subtracted
- */
-#define RED_RES_OPEN_V = 1.89 - 0.2
-#define YELLOQ_RES_OPEN_V = 1.79 - 0.2
-#define GREEN_RES_OPEN_V = 1.76 - 0.2
-
 typedef enum { 
 	NONE = 0,
 	RED, 
@@ -46,7 +31,7 @@ void light_set_color(light_n light_number, led_color color);
  * 
  * Ordering is RED -> YELLOW -> GREEN - > YELLOW -> RED ...
 */
-void light0_increment_color(void);
+void light_increment_light0_color(void);
 
 /**
  * @brief Incremenent light 1 color 
@@ -55,7 +40,7 @@ void light0_increment_color(void);
  * 
  * Safety check that GREEN can never be set if light 0 is also GREEN
 */
-void light1_increment_color(void);
+void light_increment_light1_color(void);
 
 /**
  * @brief Cycle through all lights to test that they work as expected
@@ -74,8 +59,8 @@ void test_light1_green_get(void);
 
 void test_light_set_color(void);
 
-void test_light0_increment_color(void);
-void test_light1_increment_color(void);
+void test_light_increment_light0_color(void);
+void test_light_increment_light1_color(void);
 void test_both_lights_increment_color(void);
 
 #endif /* LIGHT_H */

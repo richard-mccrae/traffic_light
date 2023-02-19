@@ -14,12 +14,13 @@ int main(void)
 	SystemCoreClockUpdate();
 
 	light_init();
-	adc_init();
+	// adc_init();
 	// systick_init();
 
-	test_adc_read_light0_red();
-	delay(DELAY_4_S);
-	test_adc_read_light0_yellow();
-	delay(DELAY_4_S);
-	test_adc_read_light0_green();
+	while(1) {
+		light_set_color(LIGHT_0, YELLOW);
+		delay(DELAY_4_S);
+		light_set_color(LIGHT_0, GREEN);
+		delay(DELAY_4_S);
+	}
 }

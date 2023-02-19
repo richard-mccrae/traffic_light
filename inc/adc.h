@@ -15,8 +15,31 @@ void adc_init(void);
 */
 float adc_read(unsigned char channel);
 
+/**
+ * Convinience functions for obtaining a specific voltage
+*/
+float adc_read_light0_red(void);
+float adc_read_light0_yellow(void);
+float adc_read_light0_green(void);
+float adc_read_light1_red(void);
+float adc_read_light1_yellow(void);
+float adc_read_light1_green(void);
+
+/**
+ * @brief Performs ADC conversion of desired light number and color
+ * @param[in] light light number
+ * @param[in] color led color
+*/
+float adc_read_light_voltage(light_n light, led_color color);
+
+/**
+ * Tests
+*/
 void test_adc_read_light0_red(void);
 void test_adc_read_light0_yellow(void);
 void test_adc_read_light0_green(void);
+void test_adc_read_light1_red(void);
+void test_adc_read_light1_yellow(void);
+void test_adc_read_light1_green(void);
 
 #endif /* ADC_H */

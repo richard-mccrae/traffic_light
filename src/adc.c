@@ -31,18 +31,18 @@ void adc_init(void)
 	PORTB->PCR[ADC_IN_LIGHT0_YELLOW] &= ~PORT_PCR_MUX_MASK;
 	PORTB->PCR[ADC_IN_LIGHT0_GREEN] &= ~PORT_PCR_MUX_MASK;
 
-	// PORTB->PCR[ADC_IN_LIGHT1_RED] &= ~PORT_PCR_MUX_MASK;
-	// PORTE->PCR[ADC_IN_LIGHT1_YELLOW] &= ~PORT_PCR_MUX_MASK;
-	// PORTE->PCR[ADC_IN_LIGHT1_GREEN] &= ~PORT_PCR_MUX_MASK;
+	PORTB->PCR[ADC_IN_LIGHT1_RED] &= ~PORT_PCR_MUX_MASK;
+	PORTE->PCR[ADC_IN_LIGHT1_YELLOW] &= ~PORT_PCR_MUX_MASK;
+	PORTE->PCR[ADC_IN_LIGHT1_GREEN] &= ~PORT_PCR_MUX_MASK;
 
 	/* Set pins to analog input */
 	PORTB->PCR[ADC_IN_LIGHT0_RED] |= PORT_PCR_MUX(0);
 	PORTB->PCR[ADC_IN_LIGHT0_YELLOW] |= PORT_PCR_MUX(0);
 	PORTB->PCR[ADC_IN_LIGHT0_GREEN] |= PORT_PCR_MUX(0);
 
-	// PORTB->PCR[ADC_IN_LIGHT0_RED] |= PORT_PCR_MUX(0);
-	// PORTE->PCR[ADC_IN_LIGHT0_YELLOW] |= PORT_PCR_MUX(0);
-	// PORTE->PCR[ADC_IN_LIGHT0_GREEN] |= PORT_PCR_MUX(0);
+	PORTB->PCR[ADC_IN_LIGHT0_RED] |= PORT_PCR_MUX(0);
+	PORTE->PCR[ADC_IN_LIGHT0_YELLOW] |= PORT_PCR_MUX(0);
+	PORTE->PCR[ADC_IN_LIGHT0_GREEN] |= PORT_PCR_MUX(0);
 
 	/* ADC configurations */
 	/** TODO: Read up on ADC configurations */
@@ -97,6 +97,82 @@ float adc_read(unsigned char channel)
 	return (_convert_output_to_voltage(adc_output));
 }
 
+/**
+ * Wrapper functions for triggering conversions from each input channel
+*/
+
+float adc_read_light0_red(void)
+{
+	return (adc_read(ADC_REFSEL_LIGHT0_RED));
+}
+
+float adc_read_light0_yellow(void)
+{
+	return (adc_read(ADC_REFSEL_LIGHT0_YELLOW));
+}
+
+float adc_read_light0_green(void)
+{
+	return (adc_read(ADC_REFSEL_LIGHT0_GREEN));
+}
+
+float adc_read_light1_red(void)
+{
+	return (adc_read(ADC_REFSEL_LIGHT1_RED));
+}
+
+float adc_read_light1_yellow(void)
+{
+	return (adc_read(ADC_REFSEL_LIGHT1_YELLOW));
+}
+
+float adc_read_light1_green(void)
+{
+	return (adc_read(ADC_REFSEL_LIGHT1_GREEN));
+}
+
+float adc_read_light_voltage(light_n light, led_color color)
+{
+	float voltage;
+
+	switch (light)
+    {
+    case LIGHT_0:
+        switch (color)
+		{
+		case RED:
+			voltage = adc_read_light0_red();
+			break;
+		case YELLOW:
+			voltage = adc_read_light0_yellow();
+			break;
+		case GREEN:
+			voltage = adc_read_light0_green();
+			break;
+		}
+        break;
+    
+    case LIGHT_1:
+        switch (color)
+		{
+        switch (color)
+		{
+		case RED:
+			voltage = adc_read_light1_red();
+			break;
+		case YELLOW:
+			voltage = adc_read_light1_yellow();
+			break;
+		case GREEN:
+			voltage = adc_read_light1_green();
+			break;
+		}
+		}
+        break;
+    }
+
+	return voltage;
+}
 
 /* *************************************  TESTS  ************************************* */
 
@@ -105,11 +181,11 @@ void test_adc_read_light0_red(void)
 	float voltage;
 
 	/* Measure voltage with pin off, should be 0 */
-	voltage = adc_read(ADC_REFSEL_LIGHT0_RED);
+	voltage = adc_read_light0_red();
 
 	if (voltage < 0.2) {
 		light_set_color(LIGHT_1, GREEN);
-	} else if ( voltage >= 1.0 && voltage < 1.8) {
+	} else if ( voltage >= 1.0 && voltage < 1.55) {
 		light_set_color(LIGHT_1, RED);
 	} else {
 		light_set_color(LIGHT_1, YELLOW);
@@ -121,11 +197,11 @@ void test_adc_read_light0_red(void)
 
 	/* Turn on LIGHT_0 RED, test ADC voltage again, should be aroudn 1.3 V */
 	light_set_color(LIGHT_0, RED);
-	voltage = adc_read(ADC_REFSEL_LIGHT0_RED);
-
+	voltage = adc_read_light0_red();
+	
 	if (voltage < 1) {
 		light_set_color(LIGHT_1, RED);
-	} else if ( voltage > 1 && voltage < 1.8) {
+	} else if ( voltage > 1 && voltage < 1.55) {
 		light_set_color(LIGHT_1, GREEN);
 	} else {
 		light_set_color(LIGHT_1, YELLOW);
@@ -141,11 +217,11 @@ void test_adc_read_light0_yellow(void)
 	float voltage;
 
 	/* Measure voltage with pin off, should be 0 */
-	voltage = adc_read(ADC_REFSEL_LIGHT0_YELLOW);
+	voltage = adc_read_light0_yellow();
 
 	if (voltage < 0.2) {
 		light_set_color(LIGHT_1, GREEN);
-	} else if ( voltage >= 1.0 && voltage < 1.8) {
+	} else if ( voltage >= 1.0 && voltage < 1.55) {
 		light_set_color(LIGHT_1, RED);
 	} else {
 		light_set_color(LIGHT_1, YELLOW);
@@ -157,11 +233,11 @@ void test_adc_read_light0_yellow(void)
 
 	/* Turn on LIGHT_0 YELLOW, test ADC voltage again, should be aroudn 1.3 V */
 	light_set_color(LIGHT_0, YELLOW);
-	voltage = adc_read(ADC_REFSEL_LIGHT0_YELLOW);
+	voltage = adc_read_light0_yellow();
 
 	if (voltage < 1) {
 		light_set_color(LIGHT_1, RED);
-	} else if ( voltage > 1 && voltage < 1.8) {
+	} else if ( voltage > 1 && voltage < 1.55) {
 		light_set_color(LIGHT_1, GREEN);
 	} else {
 		light_set_color(LIGHT_1, YELLOW);
@@ -177,11 +253,11 @@ void test_adc_read_light0_green(void)
 	float voltage;
 
 	/* Measure voltage with pin off, should be 0 */
-	voltage = adc_read(ADC_REFSEL_LIGHT0_GREEN);
+	voltage = adc_read_light0_green();
 
 	if (voltage < 0.2) {
 		light_set_color(LIGHT_1, GREEN);
-	} else if ( voltage >= 1.0 && voltage < 1.8) {
+	} else if ( voltage >= 1.0 && voltage < 1.55) {
 		light_set_color(LIGHT_1, RED);
 	} else {
 		light_set_color(LIGHT_1, YELLOW);
@@ -193,15 +269,124 @@ void test_adc_read_light0_green(void)
 
 	/* Turn on LIGHT_0 GREEN, test ADC voltage again, should be aroudn 1.3 V */
 	light_set_color(LIGHT_0, GREEN);
-	voltage = adc_read(ADC_REFSEL_LIGHT0_GREEN);
+	voltage = adc_read_light0_green();
 
 	if (voltage < 1) {
 		light_set_color(LIGHT_1, RED);
-	} else if ( voltage > 1 && voltage < 1.8) {
+	} else if ( voltage > 1 && voltage < 1.55) {
 		/* Oi! There is a low-level protection to prevent two green lights */
 		light_set_color(LIGHT_1, GREEN);
 	} else {
 		light_set_color(LIGHT_1, YELLOW);
+	}
+
+	delay(DELAY_4_S);
+	light_set_color(LIGHT_0, NONE);
+	light_set_color(LIGHT_1, NONE);
+}
+
+void test_adc_read_light1_red(void)
+{
+	float voltage;
+
+	/* Measure voltage with pin off, should be 1 */
+	voltage = adc_read_light1_red();
+
+	if (voltage < 0.2) {
+		light_set_color(LIGHT_0, GREEN);
+	} else if ( voltage >= 1.0 && voltage < 1.55) {
+		light_set_color(LIGHT_0, RED);
+	} else {
+		light_set_color(LIGHT_0, YELLOW);
+	}
+
+	delay(DELAY_4_S);
+	light_set_color(LIGHT_0, NONE);
+	delay(DELAY_4_S);
+
+	/* Turn on LIGHT_0 RED, test ADC voltage again, should be aroudn 1.3 V */
+	light_set_color(LIGHT_1, RED);
+	voltage = adc_read_light1_red();
+
+	if (voltage < 1) {
+		light_set_color(LIGHT_0, RED);
+	} else if ( voltage > 1 && voltage < 1.55) {
+		light_set_color(LIGHT_0, GREEN);
+	} else {
+		light_set_color(LIGHT_0, YELLOW);
+	}
+
+	delay(DELAY_4_S);
+	light_set_color(LIGHT_0, NONE);
+	light_set_color(LIGHT_1, NONE);
+}
+
+void test_adc_read_light1_yellow(void)
+{
+	float voltage;
+
+	/* Measure voltage with pin off, should be 0 */
+	voltage = adc_read_light1_yellow();
+
+	if (voltage < 0.2) {
+		light_set_color(LIGHT_0, GREEN);
+	} else if ( voltage >= 1.0 && voltage < 1.55) {
+		light_set_color(LIGHT_0, RED);
+	} else {
+		light_set_color(LIGHT_0, YELLOW);
+	}
+
+	delay(DELAY_4_S);
+	light_set_color(LIGHT_0, NONE);
+	delay(DELAY_4_S);
+
+	/* Turn on LIGHT_0 YELLOW, test ADC voltage again, should be aroudn 1.3 V */
+	light_set_color(LIGHT_1, YELLOW);
+	voltage = adc_read_light1_yellow();
+
+	if (voltage < 1) {
+		light_set_color(LIGHT_0, RED);
+	} else if ( voltage > 1 && voltage < 1.55) {
+		light_set_color(LIGHT_0, GREEN);
+	} else {
+		light_set_color(LIGHT_0, YELLOW);
+	}
+
+	delay(DELAY_4_S);
+	light_set_color(LIGHT_0, NONE);
+	light_set_color(LIGHT_1, NONE);
+}
+
+void test_adc_read_light1_green(void)
+{
+	float voltage;
+
+	/* Measure voltage with pin off, should be 0 */
+	voltage = adc_read_light1_green();
+
+	if (voltage < 0.2) {
+		light_set_color(LIGHT_0, GREEN);
+	} else if ( voltage >= 1.0 && voltage < 1.55) {
+		light_set_color(LIGHT_0, RED);
+	} else {
+		light_set_color(LIGHT_0, YELLOW);
+	}
+
+	delay(DELAY_4_S);
+	light_set_color(LIGHT_0, NONE);
+	delay(DELAY_4_S);
+
+	/* Turn on LIGHT_0 GREEN, test ADC voltage again, should be aroudn 1.3 V */
+	light_set_color(LIGHT_1, GREEN);
+	voltage = adc_read_light1_green();
+
+	if (voltage < 1) {
+		light_set_color(LIGHT_0, RED);
+	} else if ( voltage > 1 && voltage < 1.55) {
+		/* Oi! There is a low-level protection to prevent two green lights */
+		light_set_color(LIGHT_0, GREEN);
+	} else {
+		light_set_color(LIGHT_0, YELLOW);
 	}
 
 	delay(DELAY_4_S);

@@ -158,36 +158,6 @@ static uint8_t _light1_green_get(void)
 	return ((uint8_t)((PTB->PDOR & MASK(LIGHT1_GREEN_SHIFT)) >> LIGHT1_GREEN_SHIFT));
 }
 
-void light_init(void) {
-	/* Enable clock on PORTB and PORTE */
-	SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK | SIM_SCGC5_PORTE_MASK;
-	
-	/* Clear PCR MUXes */
-	PORTB->PCR[LIGHT0_RED_SHIFT] &= ~PORT_PCR_MUX_MASK;
-	PORTE->PCR[LIGHT0_YELLOW_SHIFT] &= ~PORT_PCR_MUX_MASK;
-	PORTE->PCR[LIGHT0_GREEN_SHIFT] &= ~PORT_PCR_MUX_MASK;
-
-	PORTB->PCR[LIGHT1_RED_SHIFT] &= ~PORT_PCR_MUX_MASK;
-	PORTB->PCR[LIGHT1_YELLOW_SHIFT] &= ~PORT_PCR_MUX_MASK;
-	PORTB->PCR[LIGHT1_GREEN_SHIFT] &= ~PORT_PCR_MUX_MASK;
-
-	/* Configure pins to use GPIO peripheral module */
-	PORTB->PCR[LIGHT0_RED_SHIFT] |= PORT_PCR_MUX(1);
-	PORTE->PCR[LIGHT0_YELLOW_SHIFT] |= PORT_PCR_MUX(1);
-	PORTE->PCR[LIGHT0_GREEN_SHIFT] |= PORT_PCR_MUX(1);
-
-	PORTB->PCR[LIGHT1_RED_SHIFT] |= PORT_PCR_MUX(1);
-	PORTB->PCR[LIGHT1_YELLOW_SHIFT] |= PORT_PCR_MUX(1);
-	PORTB->PCR[LIGHT1_GREEN_SHIFT] |= PORT_PCR_MUX(1);
-	
-	/* Set pins to be outputs */
-	PTB->PDDR |= MASK(LIGHT0_RED_SHIFT);
-	PTE->PDDR |= MASK(LIGHT0_YELLOW_SHIFT) | MASK(LIGHT0_GREEN_SHIFT);
-
-	PTB->PDDR |= MASK(LIGHT1_RED_SHIFT) | MASK(LIGHT1_YELLOW_SHIFT) | MASK(LIGHT1_GREEN_SHIFT);
-
-}
-
 /**
  * Wrapper functions
 */
@@ -254,6 +224,39 @@ static void _light1_set_color(led_color color)
 	}	
 }
 
+/**
+ * Interface
+*/
+void light_init(void) {
+	/* Enable clock on PORTB and PORTE */
+	SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK | SIM_SCGC5_PORTE_MASK;
+	
+	/* Clear PCR MUXes */
+	PORTB->PCR[LIGHT0_RED_SHIFT] &= ~PORT_PCR_MUX_MASK;
+	PORTE->PCR[LIGHT0_YELLOW_SHIFT] &= ~PORT_PCR_MUX_MASK;
+	PORTE->PCR[LIGHT0_GREEN_SHIFT] &= ~PORT_PCR_MUX_MASK;
+
+	PORTB->PCR[LIGHT1_RED_SHIFT] &= ~PORT_PCR_MUX_MASK;
+	PORTB->PCR[LIGHT1_YELLOW_SHIFT] &= ~PORT_PCR_MUX_MASK;
+	PORTB->PCR[LIGHT1_GREEN_SHIFT] &= ~PORT_PCR_MUX_MASK;
+
+	/* Configure pins to use GPIO peripheral module */
+	PORTB->PCR[LIGHT0_RED_SHIFT] |= PORT_PCR_MUX(1);
+	PORTE->PCR[LIGHT0_YELLOW_SHIFT] |= PORT_PCR_MUX(1);
+	PORTE->PCR[LIGHT0_GREEN_SHIFT] |= PORT_PCR_MUX(1);
+
+	PORTB->PCR[LIGHT1_RED_SHIFT] |= PORT_PCR_MUX(1);
+	PORTB->PCR[LIGHT1_YELLOW_SHIFT] |= PORT_PCR_MUX(1);
+	PORTB->PCR[LIGHT1_GREEN_SHIFT] |= PORT_PCR_MUX(1);
+	
+	/* Set pins to be outputs */
+	PTB->PDDR |= MASK(LIGHT0_RED_SHIFT);
+	PTE->PDDR |= MASK(LIGHT0_YELLOW_SHIFT) | MASK(LIGHT0_GREEN_SHIFT);
+
+	PTB->PDDR |= MASK(LIGHT1_RED_SHIFT) | MASK(LIGHT1_YELLOW_SHIFT) | MASK(LIGHT1_GREEN_SHIFT);
+
+}
+
 void light_set_color(light_n light_number, led_color color)
 {
 	switch ( light_number ) {
@@ -266,7 +269,7 @@ void light_set_color(light_n light_number, led_color color)
 	}
 }
 
-void light0_increment_color(void)
+void light_increment_light0_color(void)
 {
 	static uint8_t initial_state = 1;
 	static led_color color = NONE;
@@ -287,7 +290,7 @@ void light0_increment_color(void)
 	}
 }
 
-void light1_increment_color(void)
+void light_increment_light1_color(void)
 {
 	static uint8_t initial_state = 1;
 	static led_color color = NONE;
@@ -666,19 +669,19 @@ void test_light_set_color(void)
 	light_set_color(LIGHT_1, NONE);
 }
 
-void test_light0_increment_color(void)
+void test_light_increment_light0_color(void)
 {
 	while(1) {
 		delay(DELAY_4_S);
-		light0_increment_color();
+		light_increment_light0_color();
 	}
 }
 
-void test_light1_increment_color(void)
+void test_light_increment_light1_color(void)
 {
 	while(1) {
 		delay(DELAY_4_S);
-		light1_increment_color();
+		light_increment_light1_color();
 	}
 }
 
@@ -686,7 +689,7 @@ void test_both_lights_increment_color(void)
 {
 	while(1) {
 		delay(DELAY_4_S);
-		light0_increment_color();
-		light1_increment_color();
+		light_increment_light0_color();
+		light_increment_light1_color();
 	}
 }
