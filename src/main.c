@@ -10,5 +10,5 @@ int main(void) {
 	light_init();
 	// systick_init();
 
-	light_test_low_level();
+	test_light1_increment_color();
 }

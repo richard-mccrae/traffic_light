@@ -17,157 +17,105 @@
 #define DELAY_2_S	2 * 1000U * 1000U
 #define DELAY_4_S	4 * 1000U * 1000U
 
-static led_color light0_state;
-static led_color light1_state;
-
 static void _delay(volatile unsigned int time_delay) {
 	while ( time_delay--) {
 	}
 }
 
-/* Light 0 */
-static void _light0_red_on(void) {
+/*
+ * Light 0 low-level functions
+*/
+static void _light0_red_on(void)
+{
 	PTB->PSOR = MASK(LIGHT0_RED_SHIFT);
 }
 
-static void _light0_yellow_on(void) {
+static void _light0_yellow_on(void)
+{
 	PTE->PSOR = MASK(LIGHT0_YELLOW_SHIFT);
 }
 
-static void _light0_green_on(void) {
+static void _light0_green_on(void)
+{
 	PTE->PSOR = MASK(LIGHT0_GREEN_SHIFT);
 }
 
-static void _light0_red_off(void) {
+static void _light0_red_off(void)
+{
 	PTB->PCOR = MASK(LIGHT0_RED_SHIFT);
 }
 
-static void _light0_yellow_off(void) {
+static void _light0_yellow_off(void)
+{
 	PTE->PCOR = MASK(LIGHT0_YELLOW_SHIFT);
 }
 
-static void _light0_green_off(void) {
+static void _light0_green_off(void)
+{
 	PTE->PCOR = MASK(LIGHT0_GREEN_SHIFT);
 }
 
-/* Light 1 */
-static void _light1_red_on(void) {
+static uint8_t _light0_red_get(void) {
+	
+	return ((uint8_t)((PTB->PDOR & MASK(LIGHT0_RED_SHIFT)) >> LIGHT0_RED_SHIFT));
+}
+
+static uint8_t _light0_yellow_get(void)
+{
+	return ((uint8_t)((PTE->PDOR & MASK(LIGHT0_YELLOW_SHIFT)) >> LIGHT0_YELLOW_SHIFT));
+}
+
+static uint8_t _light0_green_get(void)
+{
+	return ((uint8_t)((PTE->PDOR & MASK(LIGHT0_GREEN_SHIFT)) >> LIGHT0_GREEN_SHIFT));
+}
+
+/*
+ * Light 1 low-level functions
+*/
+static void _light1_red_on(void)
+{
 	PTB->PSOR = MASK(LIGHT1_RED_SHIFT);
 }
 
-static void _light1_yellow_on(void) {
+static void _light1_yellow_on(void)
+{
 	PTB->PSOR = MASK(LIGHT1_YELLOW_SHIFT);
 }
 
-static void _light1_green_on(void) {
+static void _light1_green_on(void)
+{
 	PTB->PSOR = MASK(LIGHT1_GREEN_SHIFT);
 }
 
-static void _light1_red_off(void) {
+static void _light1_red_off(void)
+{
 	PTB->PCOR = MASK(LIGHT1_RED_SHIFT);
 }
 
-static void _light1_yellow_off(void) {
+static void _light1_yellow_off(void)
+{
 	PTB->PCOR = MASK(LIGHT1_YELLOW_SHIFT);
 }
 
-static void _light1_green_off(void) {
+static void _light1_green_off(void)
+{
 	PTB->PCOR = MASK(LIGHT1_GREEN_SHIFT);
 }
 
-static int _light_set_color_state(light_n light_number, led_color color)
-{
-	switch ( light_number ) {
-	case LIGHT_0:
-		light0_state = color;
-		break;
-	case LIGHT_1:
-		light1_state = color;
-		break;
-	default:
-		/* Invalid light number */
-		return -1;
-	}
-
-	return 0;
-}
-
-static led_color _light_get_color_state(light_n light_number)
-{
-	led_color color;
-
-	switch ( light_number ) {
-	case LIGHT_0:
-		color = light0_state;
-		break;
-	case LIGHT_1:
-		color = light1_state;
-		break;
-	// What should I do here? Add ERROR color state?
-	// default:
-	// 	/* Invalid light number */
-	}
-
-	return (color);
-}
-
-int light_set_color(light_n light_number, led_color color) {
-	switch ( light_number ) {
-	case LIGHT_0:
-		switch (color) {
-		case RED:
-			_light0_red_on();
-			_light0_green_off();
-			_light0_yellow_off();
-			break;
-		case YELLOW:
-			_light0_yellow_on();
-			_light0_red_off();
-			_light0_green_off();
-			break;
-		case GREEN:
-			_light0_green_on();
-			_light0_red_off();
-			_light0_yellow_off();
-			break;
-		default:
-			/* Invalid color */
-			return -1;
-		}
-		break;
-
-	case LIGHT_1:
-		switch (color) {
-		case RED:
-			_light1_red_on();
-			_light1_green_off();
-			_light1_yellow_off();
-			break;
-		case YELLOW:
-			_light1_yellow_on();
-			_light1_red_off();
-			_light1_green_off();
-			break;
-		case GREEN:
-			/* Add protection so that light can never turn green if 0 is red */
-			_light1_green_on();
-			_light1_red_off();
-			_light1_yellow_off();
-			break;
-		default:
-			/* Invalid color */
-			return -1;
-		}
-		break;
-
-	default:
-		/* Invalid light number */
-		return -1;
-	}
+static uint8_t _light1_red_get(void) {
 	
-	_light_set_color_state(light_number, color);
+	return ((uint8_t)((PTB->PDOR & MASK(LIGHT1_RED_SHIFT)) >> LIGHT1_RED_SHIFT));
+}
 
-	return 0;
+static uint8_t _light1_yellow_get(void)
+{
+	return ((uint8_t)((PTB->PDOR & MASK(LIGHT1_YELLOW_SHIFT)) >> LIGHT1_YELLOW_SHIFT));
+}
+
+static uint8_t _light1_green_get(void)
+{
+	return ((uint8_t)((PTB->PDOR & MASK(LIGHT1_GREEN_SHIFT)) >> LIGHT1_GREEN_SHIFT));
 }
 
 void light_init(void) {
@@ -198,28 +146,136 @@ void light_init(void) {
 
 	PTB->PDDR |= MASK(LIGHT1_RED_SHIFT) | MASK(LIGHT1_YELLOW_SHIFT) | MASK(LIGHT1_GREEN_SHIFT);
 
-	/* Set initial light colors */
-	// light_set_color(LIGHT_0, GREEN);
-	// light_set_color(LIGHT_1, RED);
 }
 
-void light_increment_color_state(light_n light_number)
+/**
+ * Wrapper functions
+*/
+
+/**
+ * @brief Set light 0 color
+ * 
+ * Only one color may be set at a time
+*/
+static void _light0_set_color(led_color color)
 {
-	led_color color;
+	switch (color) {
+		case NONE:
+			_light0_red_off();
+			_light0_green_off();
+			_light0_yellow_off();
+			break;
+		case RED:
+			_light0_red_on();
+			_light0_green_off();
+			_light0_yellow_off();
+			break;
+		case YELLOW:
+			_light0_yellow_on();
+			_light0_red_off();
+			_light0_green_off();
+			break;
+		case GREEN:
+			_light0_green_on();
+			_light0_red_off();
+			_light0_yellow_off();
+			break;
+	}	
+}
 
-	color = _light_get_color_state(light_number);
+/**
+ * @brief Set light 1 color
+ * 
+ * Only one color may be set at a time
+*/
+static void _light1_set_color(led_color color)
+{
+	switch (color) {
+		case NONE:
+			_light1_red_off();
+			_light1_green_off();
+			_light1_yellow_off();
+			break;
+		case RED:
+			_light1_red_on();
+			_light1_green_off();
+			_light1_yellow_off();
+			break;
+		case YELLOW:
+			_light1_yellow_on();
+			_light1_red_off();
+			_light1_green_off();
+			break;
+		case GREEN:
+			_light1_green_on();
+			_light1_red_off();
+			_light1_yellow_off();
+			break;
+	}	
+}
 
-	/* How to deal with possible illegal enum values, how is this protected internally, during runtime, compilation? */
-	if (color < 0 ) {
-		/* Failure! */
-	} else if (color >= 0 && color < 2) {
-		light_set_color(light_number, color++);
-	} else {
-		light_set_color(light_number, RED);
+void light_set_color(light_n light_number, led_color color)
+{
+	switch ( light_number ) {
+		case LIGHT_0:
+			_light0_set_color(color);
+			break;
+		case LIGHT_1:
+			_light1_set_color(color);
+			break;
 	}
 }
 
-void light_test_low_level(void)
+void light0_increment_color(void)
+{
+	static uint8_t initial_state = 1;
+	static led_color color = NONE;
+	static int8_t change = 1;
+
+	color += change;
+	if (!initial_state) {
+		_light0_set_color(color);
+	} else { /* Light 0 to begin program as RED */
+		_light0_set_color(RED);
+		initial_state = 0;
+	}
+
+	if ( color == RED ) {
+		change = 1;
+	} else if ( color == GREEN ) {
+		change = -1;
+	}
+}
+
+void light1_increment_color(void)
+{
+	static uint8_t initial_state = 1;
+	static led_color color = NONE;
+	static int8_t change = 1;
+
+	color += change;
+	if (!initial_state) {
+		_light1_set_color(color);
+	} else { /* Light 1 to begin program as GREEN */
+		_light1_set_color(GREEN);
+		color = GREEN;
+		initial_state = 0;
+	}
+
+	if ( color <= RED ) {
+		change = 1;
+	} else if ( color >= GREEN ) {
+		change = -1;
+	}
+}
+
+
+/*****                                 TESTS                                           *****/
+
+/** 
+ * low level set and clear functions
+ */
+void test_light_low_level(void)
 {
 	_light0_red_off();
 	_light0_yellow_off();
@@ -255,5 +311,334 @@ void light_test_low_level(void)
 		_delay(DELAY_1_S);
 		_light1_green_on();
 		_delay(DELAY_2_S);
+	}
+}
+
+/**
+ *  Test light 0 get functions
+ */
+void test_light0_red_get(void)
+{
+	volatile uint8_t red_pin_state = 8;
+
+	/* clear light, expect PDOR to be 0 */
+	_light0_red_off();
+	red_pin_state = _light0_red_get();
+
+	if (red_pin_state == 0) {
+		_light1_green_on();
+	} else if (red_pin_state == 1) {
+		_light1_red_on();
+	} else {
+		_light1_yellow_on();
+	}
+
+	_delay(DELAY_4_S);
+
+	/* Reset lightd and var */
+	_light1_red_off();
+	_light1_yellow_off();
+	_light1_green_off();
+	red_pin_state = 8;
+
+	_delay(DELAY_2_S);
+	
+	/* Set light, expect PDOR to be 1 */
+	_light0_red_on();
+	_delay(DELAY_1_S);
+	red_pin_state = _light0_red_get();
+
+	if (red_pin_state == 1) {
+		_light1_green_on();
+	} else if (red_pin_state == 0) {
+		_light1_red_on();
+	} else {
+		_light1_yellow_on();
+	}
+
+	_delay(DELAY_4_S);
+	_light0_red_off();
+	_light1_red_off();
+	_light1_yellow_off();
+	_light1_green_off();
+	_delay(DELAY_4_S);
+}
+
+void test_light0_yellow_get(void)
+{
+	volatile uint8_t yellow_pin_state = 8;
+
+	/* clear light, expect PDOR to be 0 */
+	_light0_yellow_off();
+	yellow_pin_state = _light0_yellow_get();
+
+	if (yellow_pin_state == 0) {
+		_light1_green_on();
+	} else if (yellow_pin_state == 1) {
+		_light1_red_on();
+	} else {
+		_light1_yellow_on();
+	}
+
+	_delay(DELAY_4_S);
+
+	/* Reset lightd and var */
+	_light1_red_off();
+	_light1_yellow_off();
+	_light1_green_off();
+	yellow_pin_state = 8;
+
+	_delay(DELAY_2_S);
+	
+	/* Set light, expect PDOR to be 1 */
+	_light0_yellow_on();
+	_delay(DELAY_1_S);
+	yellow_pin_state = _light0_yellow_get();
+
+	if (yellow_pin_state == 1) {
+		_light1_green_on();
+	} else if (yellow_pin_state == 0) {
+		_light1_red_on();
+	} else {
+		_light1_yellow_on();
+	}
+
+	_delay(DELAY_4_S);
+	_light0_yellow_off();
+	_light1_red_off();
+	_light1_yellow_off();
+	_light1_green_off();
+	_delay(DELAY_4_S);
+}
+
+void test_light0_green_get(void)
+{
+	volatile uint8_t green_pin_state = 8;
+
+	/* clear light, expect PDOR to be 0 */
+	_light0_green_off();
+	green_pin_state = _light0_green_get();
+
+	if (green_pin_state == 0) {
+		_light1_green_on();
+	} else if (green_pin_state == 1) {
+		_light1_red_on();
+	} else {
+		_light1_yellow_on();
+	}
+
+	_delay(DELAY_4_S);
+
+	/* Reset lightd and var */
+	_light1_red_off();
+	_light1_yellow_off();
+	_light1_green_off();
+	green_pin_state = 8;
+
+	_delay(DELAY_2_S);
+	
+	/* Set light, expect PDOR to be 1 */
+	_light0_green_on();
+	_delay(DELAY_1_S);
+	green_pin_state = _light0_green_get();
+
+	if (green_pin_state == 1) {
+		_light1_green_on();
+	} else if (green_pin_state == 0) {
+		_light1_red_on();
+	} else {
+		_light1_yellow_on();
+	}
+
+	_delay(DELAY_4_S);
+	_light0_green_off();
+	_light1_red_off();
+	_light1_yellow_off();
+	_light1_green_off();
+	_delay(DELAY_4_S);
+}
+
+/**
+ *  Test light 1 get functions
+ */
+void test_light1_red_get(void)
+{
+	volatile uint8_t red_pin_state = 8;
+
+	/* clear light, expect PDOR to be 0 */
+	_light0_red_off();
+	red_pin_state = _light1_red_get();
+
+	if (red_pin_state == 0) {
+		_light0_green_on();
+	} else if (red_pin_state == 1) {
+		_light0_red_on();
+	} else {
+		_light0_yellow_on();
+	}
+
+	_delay(DELAY_4_S);
+
+	/* Reset lightd and var */
+	_light0_red_off();
+	_light0_yellow_off();
+	_light0_green_off();
+	red_pin_state = 8;
+
+	_delay(DELAY_2_S);
+	
+	/* Set light, expect PDOR to be 1 */
+	_light1_red_on();
+	_delay(DELAY_1_S);
+	red_pin_state = _light1_red_get();
+
+	if (red_pin_state == 1) {
+		_light0_green_on();
+	} else if (red_pin_state == 0) {
+		_light0_red_on();
+	} else {
+		_light0_yellow_on();
+	}
+
+	_delay(DELAY_4_S);
+	_light1_red_off();
+	_light0_red_off();
+	_light0_yellow_off();
+	_light0_green_off();
+	_delay(DELAY_4_S);
+}
+
+void test_light1_yellow_get(void)
+{
+	volatile uint8_t yellow_pin_state = 8;
+
+	/* clear light, expect PDOR to be 0 */
+	_light1_yellow_off();
+	yellow_pin_state = _light1_yellow_get();
+
+	if (yellow_pin_state == 0) {
+		_light0_green_on();
+	} else if (yellow_pin_state == 1) {
+		_light0_red_on();
+	} else {
+		_light0_yellow_on();
+	}
+
+	_delay(DELAY_4_S);
+
+	/* Reset lightd and var */
+	_light0_red_off();
+	_light0_yellow_off();
+	_light0_green_off();
+	yellow_pin_state = 8;
+
+	_delay(DELAY_2_S);
+	
+	/* Set light, expect PDOR to be 1 */
+	_light1_yellow_on();
+	_delay(DELAY_1_S);
+	yellow_pin_state = _light1_yellow_get();
+
+	if (yellow_pin_state == 1) {
+		_light0_green_on();
+	} else if (yellow_pin_state == 0) {
+		_light0_red_on();
+	} else {
+		_light0_yellow_on();
+	}
+
+	_delay(DELAY_4_S);
+	_light1_yellow_off();
+	_light0_red_off();
+	_light0_yellow_off();
+	_light0_green_off();
+	_delay(DELAY_4_S);
+}
+
+void test_light1_green_get(void)
+{
+	volatile uint8_t green_pin_state = 8;
+
+	/* clear light, expect PDOR to be 0 */
+	_light1_green_off();
+	green_pin_state = _light1_green_get();
+
+	if (green_pin_state == 0) {
+		_light0_green_on();
+	} else if (green_pin_state == 1) {
+		_light0_red_on();
+	} else {
+		_light0_yellow_on();
+	}
+
+	_delay(DELAY_4_S);
+
+	/* Reset lightd and var */
+	_light0_red_off();
+	_light0_yellow_off();
+	_light0_green_off();
+	green_pin_state = 8;
+
+	_delay(DELAY_2_S);
+	
+	/* Set light, expect PDOR to be 1 */
+	_light1_green_on();
+	_delay(DELAY_1_S);
+	green_pin_state = _light1_green_get();
+
+	if (green_pin_state == 1) {
+		_light0_green_on();
+	} else if (green_pin_state == 0) {
+		_light0_red_on();
+	} else {
+		_light0_yellow_on();
+	}
+
+	_delay(DELAY_4_S);
+	_light1_green_off();
+	_light0_red_off();
+	_light0_yellow_off();
+	_light0_green_off();
+	_delay(DELAY_4_S);
+}
+
+/**
+ * Test wrapper and higher level functions
+*/
+void test_light_set_color(void)
+{
+	_delay(DELAY_2_S);
+	light_set_color(LIGHT_0, RED);
+	_delay(DELAY_2_S);
+	light_set_color(LIGHT_0, YELLOW);
+	_delay(DELAY_2_S);
+	light_set_color(LIGHT_0, GREEN);
+	_delay(DELAY_2_S);
+	light_set_color(LIGHT_0, NONE);
+
+	_delay(DELAY_4_S);
+
+	light_set_color(LIGHT_1, RED);
+	_delay(DELAY_2_S);
+	light_set_color(LIGHT_1, YELLOW);
+	_delay(DELAY_2_S);
+	light_set_color(LIGHT_1, GREEN);
+	_delay(DELAY_2_S);
+	light_set_color(LIGHT_1, NONE);
+}
+
+void test_light0_increment_color(void)
+{
+	while(1) {
+		_delay(DELAY_4_S);
+		light0_increment_color();
+	}
+}
+
+void test_light1_increment_color(void)
+{
+	while(1) {
+		_delay(DELAY_4_S);
+		light1_increment_color();
 	}
 }
