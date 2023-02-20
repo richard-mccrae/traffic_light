@@ -38,23 +38,23 @@ static int _verify_diode_and_resistor_voltage(light_n light, led_color color);
 */
 
 static void _red_on(void) {
-	PTB->PCOR = MASK(SYSTEM_ERROR_LIGHT_RED);
+    PTB->PCOR = MASK(SYSTEM_ERROR_LIGHT_RED);
 }
 static void _red_off(void) {
-	PTB->PSOR = MASK(SYSTEM_ERROR_LIGHT_RED);
+    PTB->PSOR = MASK(SYSTEM_ERROR_LIGHT_RED);
 }
 static void _red_toggle(void) {
-	PTB->PTOR = MASK(SYSTEM_ERROR_LIGHT_RED);
+    PTB->PTOR = MASK(SYSTEM_ERROR_LIGHT_RED);
 }
 
 static void _blue_toggle(void) {
-	PTD->PTOR = MASK(SYSTEM_ERROR_LIGHT_BLUE);
+    PTD->PTOR = MASK(SYSTEM_ERROR_LIGHT_BLUE);
 }
 static void _blue_on(void) {
-	PTD->PCOR = MASK(SYSTEM_ERROR_LIGHT_BLUE);
+    PTD->PCOR = MASK(SYSTEM_ERROR_LIGHT_BLUE);
 }
 static void _blue_off(void) {
-	PTD->PSOR = MASK(SYSTEM_ERROR_LIGHT_BLUE);
+    PTD->PSOR = MASK(SYSTEM_ERROR_LIGHT_BLUE);
 }
 
 static void _low_voltage_alert(void)
@@ -120,15 +120,15 @@ void watchdog_reset_notify(void)
 void system_failure_alert_init(void)
 {
     /* Enable clock on PORTB and PORTD */
-	SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK | SIM_SCGC5_PORTD_MASK;
+    SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK | SIM_SCGC5_PORTD_MASK;
 
-	/* Clear PCR MUXes */
-	PORTB->PCR[SYSTEM_ERROR_LIGHT_RED] &= ~PORT_PCR_MUX_MASK;
-	PORTD->PCR[SYSTEM_ERROR_LIGHT_BLUE] &= ~PORT_PCR_MUX_MASK;
+    /* Clear PCR MUXes */
+    PORTB->PCR[SYSTEM_ERROR_LIGHT_RED] &= ~PORT_PCR_MUX_MASK;
+    PORTD->PCR[SYSTEM_ERROR_LIGHT_BLUE] &= ~PORT_PCR_MUX_MASK;
 
-	/* Configure pins to use GPIO peripheral module */
-	PORTB->PCR[SYSTEM_ERROR_LIGHT_RED] |= PORT_PCR_MUX(1);
-	PORTD->PCR[SYSTEM_ERROR_LIGHT_BLUE] |= PORT_PCR_MUX(1);
+    /* Configure pins to use GPIO peripheral module */
+    PORTB->PCR[SYSTEM_ERROR_LIGHT_RED] |= PORT_PCR_MUX(1);
+    PORTD->PCR[SYSTEM_ERROR_LIGHT_BLUE] |= PORT_PCR_MUX(1);
 
     /* Set pins to output */
     PTB->PDDR |= MASK(SYSTEM_ERROR_LIGHT_RED);
@@ -144,7 +144,7 @@ void traffic_light0_increment_and_verify(led_color initial_color)
 {
     int err;
     static led_color color = 0;
-	static int8_t change = 1;
+    static int8_t change = 1;
     static bool first_call = true;
 
     if (first_call) {
@@ -154,11 +154,11 @@ void traffic_light0_increment_and_verify(led_color initial_color)
 
     light_set_color(LIGHT_0, color);
 
-	if ( color == RED ) {
-		change = 1;
-	} else if ( color == GREEN ) {
-		change = -1;
-	}
+    if ( color == RED ) {
+        change = 1;
+    } else if ( color == GREEN ) {
+        change = -1;
+    }
 
     err = _verify_diode_and_resistor_voltage(LIGHT_0, color);
     if (err) {
@@ -172,7 +172,7 @@ void traffic_light1_increment_and_verify(led_color initial_color)
 {
     int err;
     static led_color color = 0;
-	static int8_t change = 1;
+    static int8_t change = 1;
     static bool first_call = true;
 
     if (first_call) {
@@ -182,11 +182,11 @@ void traffic_light1_increment_and_verify(led_color initial_color)
 
     light_set_color(LIGHT_1, color);
 
-	if ( color == RED ) {
-		change = 1;
-	} else if ( color == GREEN ) {
-		change = -1;
-	}
+    if ( color == RED ) {
+        change = 1;
+    } else if ( color == GREEN ) {
+        change = -1;
+    }
 
     err = _verify_diode_and_resistor_voltage(LIGHT_1, color);
     if (err) {

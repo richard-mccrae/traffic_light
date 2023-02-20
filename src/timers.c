@@ -31,7 +31,7 @@ void SysTick_Handler(void)
 
 void systick_deinit(void)
 {
-     SysTick->CTRL = 0;
+    SysTick->CTRL = 0;
 }
 
 /**
