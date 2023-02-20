@@ -20,7 +20,7 @@ int main(void)
 	/* Configure wacthdog timer
 	 * "#define DISABLE_WDOG 0" must also be placed in system_MKL25Z4.h
 	 */
-	// COP_WDT_init();
+	COP_WDT_init();
 
 	while(1);
 }
