@@ -19,7 +19,7 @@ A simple traffic light implemented on a NXP FRDM-KL25Z board
   
 ## HW Schematic
 
-![Alt text](traffic_light_schem.svg)
+![Alt text](resources/traffic_light_schem.svg)
 
 ## Demonstration
 

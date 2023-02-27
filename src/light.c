@@ -47,12 +47,12 @@ static void _light1_set_color(led_color color);
 */
 static void _light0_red_on(void)
 {
-    PTB->PSOR = MASK(LIGHT0_RED_SHIFT);
+    PTB->PCOR = MASK(LIGHT0_RED_SHIFT);
 }
 
 static void _light0_yellow_on(void)
 {
-    PTE->PSOR = MASK(LIGHT0_YELLOW_SHIFT);
+    PTE->PCOR = MASK(LIGHT0_YELLOW_SHIFT);
 }
 
 static void _light0_green_on(void)
@@ -63,7 +63,7 @@ static void _light0_green_on(void)
     light1_green_pin_state = _light1_green_get();
 
     if ( !light1_green_pin_state ) {
-        PTE->PSOR = MASK(LIGHT0_GREEN_SHIFT);
+        PTE->PCOR = MASK(LIGHT0_GREEN_SHIFT);
     }
 
     /** TODO: Add error handling logic, function should return failure if light 1 is GREEN */
@@ -71,32 +71,32 @@ static void _light0_green_on(void)
 
 static void _light0_red_off(void)
 {
-    PTB->PCOR = MASK(LIGHT0_RED_SHIFT);
+    PTB->PSOR = MASK(LIGHT0_RED_SHIFT);
 }
 
 static void _light0_yellow_off(void)
 {
-    PTE->PCOR = MASK(LIGHT0_YELLOW_SHIFT);
+    PTE->PSOR = MASK(LIGHT0_YELLOW_SHIFT);
 }
 
 static void _light0_green_off(void)
 {
-    PTE->PCOR = MASK(LIGHT0_GREEN_SHIFT);
+    PTE->PSOR = MASK(LIGHT0_GREEN_SHIFT);
 }
 
 static uint8_t _light0_red_get(void) {
     
-    return ((uint8_t)((PTB->PDOR & MASK(LIGHT0_RED_SHIFT)) >> LIGHT0_RED_SHIFT));
+    return ((uint8_t)(!(PTB->PDOR & MASK(LIGHT0_RED_SHIFT)) >> LIGHT0_RED_SHIFT));
 }
 
 static uint8_t _light0_yellow_get(void)
 {
-    return ((uint8_t)((PTE->PDOR & MASK(LIGHT0_YELLOW_SHIFT)) >> LIGHT0_YELLOW_SHIFT));
+    return ((uint8_t)(!(PTE->PDOR & MASK(LIGHT0_YELLOW_SHIFT)) >> LIGHT0_YELLOW_SHIFT));
 }
 
 static uint8_t _light0_green_get(void)
 {
-    return ((uint8_t)((PTE->PDOR & MASK(LIGHT0_GREEN_SHIFT)) >> LIGHT0_GREEN_SHIFT));
+    return ((uint8_t)(!(PTE->PDOR & MASK(LIGHT0_GREEN_SHIFT)) >> LIGHT0_GREEN_SHIFT));
 }
 
 /*
@@ -104,12 +104,12 @@ static uint8_t _light0_green_get(void)
 */
 static void _light1_red_on(void)
 {
-    PTB->PSOR = MASK(LIGHT1_RED_SHIFT);
+    PTB->PCOR = MASK(LIGHT1_RED_SHIFT);
 }
 
 static void _light1_yellow_on(void)
 {
-    PTB->PSOR = MASK(LIGHT1_YELLOW_SHIFT);
+    PTB->PCOR = MASK(LIGHT1_YELLOW_SHIFT);
 }
 
 static void _light1_green_on(void)
@@ -120,7 +120,7 @@ static void _light1_green_on(void)
     light0_green_pin_state = _light0_green_get();
 
     if (!light0_green_pin_state) {
-        PTB->PSOR = MASK(LIGHT1_GREEN_SHIFT);
+        PTB->PCOR = MASK(LIGHT1_GREEN_SHIFT);
     }
 
     /** TODO: Add error handling logic, function should return failure if light 0 is GREEN */
@@ -128,32 +128,32 @@ static void _light1_green_on(void)
 
 static void _light1_red_off(void)
 {
-    PTB->PCOR = MASK(LIGHT1_RED_SHIFT);
+    PTB->PSOR = MASK(LIGHT1_RED_SHIFT);
 }
 
 static void _light1_yellow_off(void)
 {
-    PTB->PCOR = MASK(LIGHT1_YELLOW_SHIFT);
+    PTB->PSOR = MASK(LIGHT1_YELLOW_SHIFT);
 }
 
 static void _light1_green_off(void)
 {
-    PTB->PCOR = MASK(LIGHT1_GREEN_SHIFT);
+    PTB->PSOR = MASK(LIGHT1_GREEN_SHIFT);
 }
 
 static uint8_t _light1_red_get(void) {
     
-    return ((uint8_t)((PTB->PDOR & MASK(LIGHT1_RED_SHIFT)) >> LIGHT1_RED_SHIFT));
+    return ((uint8_t)(!(PTB->PDOR & MASK(LIGHT1_RED_SHIFT)) >> LIGHT1_RED_SHIFT));
 }
 
 static uint8_t _light1_yellow_get(void)
 {
-    return ((uint8_t)((PTB->PDOR & MASK(LIGHT1_YELLOW_SHIFT)) >> LIGHT1_YELLOW_SHIFT));
+    return ((uint8_t)(!(PTB->PDOR & MASK(LIGHT1_YELLOW_SHIFT)) >> LIGHT1_YELLOW_SHIFT));
 }
 
 static uint8_t _light1_green_get(void)
 {
-    return ((uint8_t)((PTB->PDOR & MASK(LIGHT1_GREEN_SHIFT)) >> LIGHT1_GREEN_SHIFT));
+    return ((uint8_t)(!(PTB->PDOR & MASK(LIGHT1_GREEN_SHIFT)) >> LIGHT1_GREEN_SHIFT));
 }
 
 /**
@@ -254,6 +254,8 @@ void light_init(void) {
 
     PTB->PDDR |= MASK(LIGHT1_RED_SHIFT) | MASK(LIGHT1_YELLOW_SHIFT) | MASK(LIGHT1_GREEN_SHIFT);
 
+    light_set_color(LIGHT_0, NONE);
+    light_set_color(LIGHT_1, NONE);
 }
 
 void light_set_color(light_n light_number, led_color color)
