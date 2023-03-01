@@ -11,9 +11,10 @@ A simple traffic light implemented on a NXP FRDM-KL25Z board
     - ADC with a channel for each of the 6 LEDs
         - When each LED is powered on, ADC takes a measurement between the resistor and diode
         - If the voltage measurement is below a predetermined value, the lights will turn off and 
-        the board's own LED will flash red
-        - If the voltage measurement is above a predetermined value, the lights will turn off and 
-        the board's own LED will flash blue
+        the board's own LED will flash red.
+        - If the voltage measurement is above the acceptable voltage threshold (expected voltage + 0.2 V) yet less than 3.1 V,
+        the lights will turn off and the board's own LED will flash blue.
+        - If the voltage measurement is above 3.1 V, the lights will turn off and the board's own LED will flash green.
     - Manual tests are included in the source code
     - All MCU modules controlled via CMSIS-CORE peripheral access layer defines found within MKL25Z4.h
   
